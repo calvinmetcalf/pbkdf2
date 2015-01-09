@@ -1,0 +1,14 @@
+{
+  "name": "pbkdf2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "tape": "^3.0.3"
+  }
+}
