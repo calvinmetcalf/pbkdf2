@@ -1,7 +1,7 @@
 var crypto = require('crypto');
 var fork = require('child_process').fork;
 var path = require('path');
-var syncpbkdf2 = require('./pbkdf2-shim');
+var compat = require('pbkdf2-compat');
 var hashes = {
   sha1: 0,
   0: 'sha1',
@@ -42,42 +42,23 @@ function handleError (err, callback) {
   }
 
 }
-exports.hash = pbkdf2;
-function pbkdf2(password, salt, iterations, keylen, digest, callback) {
-  if (typeof digest === 'function') {
-    callback = digest;
-    digest = 'sha1';
-  }
-
-  if (typeof iterations !== 'number') {
-    return handleError(new TypeError('Iterations not a number'), callback);
-  }
-
-  if (iterations < 0){
-    return handleError(new TypeError('Bad iterations'), callback);
-  }
-
-  if (typeof keylen !== 'number') {
-    return handleError(new TypeError('Key length not a number'), callback);
-  }
-
-  if (keylen < 0) {
-    return handleError(new TypeError('Bad key length'), callback);
-  }
-  if (!Buffer.isBuffer(password))  {
-    password = new Buffer(password);
-  }
-  if (!Buffer.isBuffer(salt)) {
-    salt = new Buffer(salt);
-  }
-
-  if (typeof callback !== 'function') {
-    if (isNode10() && digest !== 'sha1') {
-      return syncpbkdf2(password, salt, iterations, keylen, digest);
+exports.pbkdf2 = pbkdf2;
+exports.pbkdf2Sync = pbkdf2Sync;
+function pbkdf2Sync(password, salt, iterations, keylen, digest) {
+  digets = digest || 'sha1';
+  if (isNode10()) {
+    if (digest === 'sha1') {
+      return crypto.pbkdf2Sync(password, salt, iterations, keylen);
     } else {
-      return crypto.pbkdf2Sync(password, salt, iterations, keylen, digest);
+      return compat.pbkdf2Sync(password, salt, iterations, keylen, digest);
     }
+  } else {
+    return crypto.pbkdf2Sync(password, salt, iterations, keylen, digest);
   }
+}
+function pbkdf2(password, salt, iterations, keylen, digest, callback) {
+  digets = digest || 'sha1';
+
   if (isNode10()) {
     if (digest === 'sha1') {
       return crypto.pbkdf2(password, salt, iterations, keylen, callback);

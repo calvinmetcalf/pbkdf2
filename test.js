@@ -8,11 +8,11 @@ function testValid(key, salt, iterations, dkLen, algo, result) {
   test('key:'+ key + ' salt:' + salt + ' iterations:' + iterations + ' len:' + dkLen + ' algo:' + algo, function (t) {
     t.plan(3);
     var syncDone = false;
-    pbkdf2.hash(key, salt, iterations, dkLen, algo, function (err, res) {
+    pbkdf2.pbkdf2(key, salt, iterations, dkLen, algo, function (err, res) {
       t.equals(res.toString('hex'), result, 'async');
       t.ok(syncDone, 'async is actually async');
     });
-    t.equals(pbkdf2.hash(key, salt, iterations, dkLen, algo).toString('hex'), result, 'sync');
+    t.equals(pbkdf2.pbkdf2Sync(key, salt, iterations, dkLen, algo).toString('hex'), result, 'sync');
     syncDone = true;
   });
 }
@@ -23,13 +23,9 @@ fixtures.valid.forEach(function (item) {
 });
 function testinValid(key, salt, iterations, dkLen, algo) {
   test('key:'+ key + ' salt:' + salt + ' iterations:' + iterations + ' len:' + dkLen + ' algo:' + algo, function (t) {
-    t.plan(3);
-    var syncDone = false;
-    pbkdf2.hash(key, salt, iterations, dkLen, algo, function (err, res) {
-      t.ok(err, 'async');
-      t.ok(syncDone, 'async is actually async');
-    });
-    t.throws(pbkdf2.hash.bind(null, key, salt, iterations, dkLen, algo), 'sync');
+    t.plan(2);
+    t.throws(pbkdf2.pbkdf2.bind(null, key, salt, iterations, dkLen, algo, function () {}), 'sync');
+    t.throws(pbkdf2.pbkdf2Sync.bind(null, key, salt, iterations, dkLen, algo), 'sync');
     syncDone = true;
   });
 }
@@ -42,10 +38,10 @@ test('defaults to sha1', function (t) {
   t.plan(3);
   var result = '0c60c80f961f0e71f3a9b524af6012062fe037a6e0f0eb94fe8fc46bdc637164';
   var syncDone = false;
-  pbkdf2.hash('password', 'salt', 1, 32, function (err, res) {
+  pbkdf2.pbkdf2('password', 'salt', 1, 32, function (err, res) {
     t.equals(res.toString('hex'), result, 'async');
     t.ok(syncDone, 'async is actually async');
   });
-  t.equals(pbkdf2.hash('password', 'salt', 1, 32).toString('hex'), result, 'sync');
+  t.equals(pbkdf2.pbkdf2Sync('password', 'salt', 1, 32).toString('hex'), result, 'sync');
   syncDone = true;
 });

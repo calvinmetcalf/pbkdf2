@@ -10,5 +10,12 @@
   "license": "MIT",
   "devDependencies": {
     "tape": "^3.0.3"
+  },
+  "dependencies": {
+    "pbkdf2-compat": "^2.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:calvinmetcalf/pbkdf2.git"
   }
 }
