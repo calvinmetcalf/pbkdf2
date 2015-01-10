@@ -15,6 +15,20 @@ var hashes = {
   4: 'sha512'
 };
 function asyncpbkdf2(password, salt, iterations, keylen, digest, callback) {
+  if (typeof iterations !== 'number') {
+    throw new TypeError('Iterations not a number')
+  }
+  if (iterations < 0) {
+    throw new TypeError('Bad iterations')
+  }
+
+  if (typeof keylen !== 'number') {
+    throw new TypeError('Key length not a number')
+  }
+
+  if (keylen < 0) {
+    throw new TypeError('Bad key length')
+  }
   var msg = {
     password: password.toString(),
     salt: salt.toString(),
@@ -26,8 +40,9 @@ function asyncpbkdf2(password, salt, iterations, keylen, digest, callback) {
   var child = fork(path.resolve(__dirname, 'pbkdf2-async.js'));
   child.on('message', function (resp) {
     child.kill();
-    callback(null, new Buffer(resp));
+    callback(null, new Buffer(resp,'hex'));
   }).on('error', function (err) {
+    child.kill();
     callback(err);
   });
   child.send(msg);
@@ -57,7 +72,10 @@ function pbkdf2Sync(password, salt, iterations, keylen, digest) {
   }
 }
 function pbkdf2(password, salt, iterations, keylen, digest, callback) {
-  digets = digest || 'sha1';
+  if (typeof digest ===  'function') {
+    callback = digest;
+    digest = 'sha1';
+  }
 
   if (isNode10()) {
     if (digest === 'sha1') {

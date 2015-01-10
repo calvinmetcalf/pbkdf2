@@ -24,7 +24,7 @@ fixtures.valid.forEach(function (item) {
 function testinValid(key, salt, iterations, dkLen, algo) {
   test('key:'+ key + ' salt:' + salt + ' iterations:' + iterations + ' len:' + dkLen + ' algo:' + algo, function (t) {
     t.plan(2);
-    t.throws(pbkdf2.pbkdf2.bind(null, key, salt, iterations, dkLen, algo, function () {}), 'sync');
+    t.throws(pbkdf2.pbkdf2.bind(null, key, salt, iterations, dkLen, algo, function () {}), 'async');
     t.throws(pbkdf2.pbkdf2Sync.bind(null, key, salt, iterations, dkLen, algo), 'sync');
     syncDone = true;
   });
